@@ -55,8 +55,6 @@ CREATE TABLE booking (
 );
 
 CREATE TABLE booking_seat (
-    booking_seat_id BIGSERIAL PRIMARY KEY,
-
     booking_id BIGINT NOT NULL,
     seat_id BIGINT NOT NULL,
 

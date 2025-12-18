@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.flight.dto.BookingCancelResponse;
 import com.flight.dto.BookingRequest;
 import com.flight.dto.BookingResponse;
 import com.flight.dto.BookingSeatResponse;
@@ -15,8 +16,11 @@ import com.flight.entity.BookingSeat;
 import com.flight.entity.Flight;
 import com.flight.entity.Seat;
 import com.flight.enums.BookingStatus;
+import com.flight.enums.FlightStatus;
 import com.flight.enums.SeatStatus;
+import com.flight.exception.BookingNotFoundException;
 import com.flight.exception.FlightNotFoundException;
+import com.flight.exception.InvalidBookingCancelException;
 import com.flight.exception.InvalidBookingException;
 import com.flight.exception.SeatNotAvailableException;
 import com.flight.repository.BookingRepository;
@@ -146,14 +150,17 @@ public class BookingService {
 
 	        case DEPARTED:
 	            throw new InvalidBookingException(
-	                "Flight has already departed. Booking is closed."
+	                "Flight has already departed. Booking not allowed."
 	            );
 
 	        case CANCELLED:
 	            throw new InvalidBookingException(
-	                "Flight is cancelled. Booking is not allowed."
+	                "Flight is cancelled. Booking not allowed."
 	            );
 
+	        case DELAYED:
+	        	return;
+	        	
 	        case SCHEDULED:
 	            return;
 
@@ -162,6 +169,43 @@ public class BookingService {
 	                "Flight is not open for booking."
 	            );
 	    }
+	}
+	
+	//========================
+	// CANCEL BOOKING
+	//========================
+	public BookingCancelResponse cancelBooking(String bookingCode) {
+		Booking booking = bookingRepository.findByBookingCode(bookingCode)
+				.orElseThrow(() -> new BookingNotFoundException("Booking Not Found"));
+
+		Flight flight = flightRepository.findByFlightCode(booking.getFlight().getFlightCode()).orElseThrow(
+				() -> new FlightNotFoundException("Flight not found: " + booking.getFlight().getFlightCode()));
+
+		List<String> bookingSeats = bookingSeatRepository.findSeatNumbersByBookingId(booking.getBookingId());
+		if(booking.getStatus() == BookingStatus.CANCELLED) {
+			throw new InvalidBookingCancelException("Booking is already cancelled.");
+		}
+		
+		if (flight.getStatus() == FlightStatus.SCHEDULED || flight.getStatus() == FlightStatus.DELAYED) {
+			int count = seatRepository.updateSeatStatus(flight.getFlightId(), bookingSeats);
+			
+			if (count != bookingSeats.size()) {
+				throw new SeatNotAvailableException("One or more seats cannot be cancelled.");
+			}
+			
+			bookingSeatRepository.deleteBookingSeats(booking.getBookingId());
+			booking.setStatus(BookingStatus.CANCELLED);
+			bookingRepository.save(booking);
+			
+		} else if (flight.getStatus() == FlightStatus.DEPARTED) {
+			throw new InvalidBookingCancelException("Cannot cancel booking. Flight has already departed.");
+		} else if (flight.getStatus() == FlightStatus.CANCELLED) {
+			throw new InvalidBookingCancelException("Flight is already cancelled.");
+		}
+
+		return new BookingCancelResponse(bookingCode, flight.getFlightCode(), flight.getSource(),
+				flight.getDestination(), bookingSeats, BookingStatus.CANCELLED,
+				"Your flight booking has been cancelled successfully");
 	}
 
 }

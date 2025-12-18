@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
 	// ========================
 	// 400 - Bad Request
 	// ========================
-	@ExceptionHandler({ SeatNotAvailableException.class, InvalidBookingException.class })
+	@ExceptionHandler({ SeatNotAvailableException.class, InvalidBookingException.class, InvalidFlightStatusException.class, InvalidBookingCancelException.class})
 	public ResponseEntity<ErrorResponse> handleBadRequest(RuntimeException ex, WebRequest request) {
 
 		return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
