@@ -14,8 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.flight.dto.FlightRequest;
 import com.flight.dto.FlightResponse;
+import com.flight.dto.FlightSearchRequest;
 import com.flight.dto.FlightSeatAvailabilityResponse;
 import com.flight.dto.FlightStatusRequest;
+import com.flight.entity.Flight;
 import com.flight.service.FlightService;
 
 @RestController
@@ -47,6 +49,11 @@ public class FlightController {
 	@GetMapping("/scheduled")
 	public List<FlightResponse> getScheduledFlights() {
 		return flightService.getScheduledFlights();
+	}
+	
+	@GetMapping("/search")
+	public List<Flight> searchFlights(@RequestBody FlightSearchRequest flightSearchRequest) {
+		return flightService.serachFlights(flightSearchRequest.source(), flightSearchRequest.destination(), flightSearchRequest.journeyDate());
 	}
 
 }

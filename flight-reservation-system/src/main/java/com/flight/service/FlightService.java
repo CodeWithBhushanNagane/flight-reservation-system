@@ -1,5 +1,6 @@
 package com.flight.service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -8,11 +9,15 @@ import org.springframework.stereotype.Service;
 import com.flight.dto.FlightRequest;
 import com.flight.dto.FlightResponse;
 import com.flight.dto.FlightSeatAvailabilityResponse;
+import com.flight.entity.Booking;
 import com.flight.entity.Flight;
 import com.flight.entity.Seat;
+import com.flight.enums.BookingStatus;
 import com.flight.enums.FlightStatus;
 import com.flight.exception.FlightNotFoundException;
 import com.flight.exception.InvalidFlightStatusException;
+import com.flight.repository.BookingRepository;
+import com.flight.repository.BookingSeatRepository;
 import com.flight.repository.FlightRepository;
 import com.flight.repository.SeatRepository;
 import com.flight.util.FlightMapper;
@@ -22,11 +27,15 @@ public class FlightService {
 
 	private final FlightRepository flightRepository;
 	private final SeatRepository seatRepository;
+	private final BookingRepository bookingRepository;
+	private final BookingSeatRepository bookingSeatRepository;
 
-	public FlightService(FlightRepository flightRepository, SeatRepository seatRepository) {
+	public FlightService(FlightRepository flightRepository, SeatRepository seatRepository, BookingRepository bookingRepository, BookingSeatRepository bookingSeatRepository) {
 
 		this.flightRepository = flightRepository;
 		this.seatRepository = seatRepository;
+		this.bookingRepository = bookingRepository;
+		this.bookingSeatRepository = bookingSeatRepository;
 	}
 
 	// =========================
@@ -69,7 +78,12 @@ public class FlightService {
 	    }
 	    if(newStatus == FlightStatus.CANCELLED) {
 	    	//TODO: Update bookings and seats and inform user.
-	    	throw new InvalidFlightStatusException("Flight status cannot be changed to: "+newStatus);
+	    	List<Booking> bookings = bookingRepository.findByFlight(flight);
+	    	for(Booking booking : bookings) {
+	    		bookingSeatRepository.deleteBookingSeats(booking.getBookingId());
+	    		booking.setStatus(BookingStatus.CANCELLED_BY_AIRLINE);
+	    		bookingRepository.save(booking);
+	    	}
 	    }
 	    flight.setStatus(newStatus);
 	    flightRepository.save(flight);
@@ -87,6 +101,10 @@ public class FlightService {
 					flight.getStatus().name());
 		}).toList();
 
+	}
+	
+	public List<Flight> serachFlights(String source, String destination, LocalDate journeyDate) {
+		return flightRepository.searchActiveFlights(source, destination, journeyDate);
 	}
 
 }
