@@ -178,13 +178,14 @@ public class BookingService {
 		Booking booking = bookingRepository.findByBookingCode(bookingCode)
 				.orElseThrow(() -> new BookingNotFoundException("Booking Not Found"));
 
+		if(booking.getStatus() == BookingStatus.CANCELLED) {
+			throw new InvalidBookingCancelException("Booking is already cancelled.");
+		}
+		
 		Flight flight = flightRepository.findByFlightCode(booking.getFlight().getFlightCode()).orElseThrow(
 				() -> new FlightNotFoundException("Flight not found: " + booking.getFlight().getFlightCode()));
 
 		List<String> bookingSeats = bookingSeatRepository.findSeatNumbersByBookingId(booking.getBookingId());
-		if(booking.getStatus() == BookingStatus.CANCELLED) {
-			throw new InvalidBookingCancelException("Booking is already cancelled.");
-		}
 		
 		if (flight.getStatus() == FlightStatus.SCHEDULED || flight.getStatus() == FlightStatus.DELAYED) {
 			int count = seatRepository.updateSeatStatus(flight.getFlightId(), bookingSeats);
