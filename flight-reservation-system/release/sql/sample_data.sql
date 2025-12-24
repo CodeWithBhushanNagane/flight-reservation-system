@@ -1,25 +1,3 @@
-INSERT INTO flight (
-    flight_code,
-    flight_name,
-    source,
-    destination,
-    departure_time,
-    arrival_time,
-    status,
-    total_seats
-)
-VALUES
-(
-    'AI101',
-    'Air India Express',
-    'DEL',
-    'BOM',
-    '2025-01-15 08:30',
-    '2025-01-15 10:45',
-    'SCHEDULED',
-    100
-);
-
 INSERT INTO seat (flight_id, seat_number, status)
 SELECT
     f.flight_id,

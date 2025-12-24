@@ -1,4 +1,4 @@
-package com.flight.entity;
+package com.demo.flight.entity;
 
 public class User {
 

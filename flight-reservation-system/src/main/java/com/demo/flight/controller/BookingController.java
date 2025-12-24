@@ -1,4 +1,4 @@
-package com.flight.controller;
+package com.demo.flight.controller;
 
 import java.util.List;
 
@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.flight.dto.BookingCancelRequest;
-import com.flight.dto.BookingCancelResponse;
-import com.flight.dto.BookingRequest;
-import com.flight.dto.BookingResponse;
-import com.flight.dto.BookingSeatResponse;
-import com.flight.entity.Booking;
-import com.flight.service.BookingService;
+import com.demo.flight.dto.BookingCancelRequest;
+import com.demo.flight.dto.BookingCancelResponse;
+import com.demo.flight.dto.BookingRequest;
+import com.demo.flight.dto.BookingResponse;
+import com.demo.flight.dto.BookingSeatResponse;
+import com.demo.flight.entity.Booking;
+import com.demo.flight.service.BookingService;
 
 @RestController
 @RequestMapping("/api/v1/booking")
@@ -29,9 +29,6 @@ public class BookingController {
 		this.bookingService = bookingService;
 	}
 
-	// ===============================
-	// BOOK SEATS
-	// ===============================
 	@PostMapping
 	public ResponseEntity<BookingResponse> bookSeats(
 			@RequestBody BookingRequest request) {
@@ -42,27 +39,18 @@ public class BookingController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
-	// ===============================
-	// SHOW MY BOOKINGS
-	// ===============================
 	@GetMapping
 	public List<Booking> getMyBookings() {
 		String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 		return bookingService.getUserBookings(userId);
 	}
-	
-	// ===============================
-	// SHOW MY BOOKINGS WITH SEATS
-	// ===============================
+
 	@GetMapping("/seats")
 	public List<BookingSeatResponse> getMyBookingsWithSeats() {
 		String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 		return bookingService.getUserBookingsWithSeats(userId);
 	}
-	
-	// ===============================
-	// CANCEL BOOKING
-	// ===============================
+
 	@PostMapping("/cancel")
 	public BookingCancelResponse cancelBooking(@RequestBody BookingCancelRequest bookingCancelRequest) {
 		return bookingService.cancelBooking(bookingCancelRequest.getBookingCode());

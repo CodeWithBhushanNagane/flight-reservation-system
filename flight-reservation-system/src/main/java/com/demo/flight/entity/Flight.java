@@ -1,8 +1,8 @@
-package com.flight.entity;
+package com.demo.flight.entity;
 
 import java.time.LocalDateTime;
 
-import com.flight.enums.FlightStatus;
+import com.demo.flight.enums.FlightStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

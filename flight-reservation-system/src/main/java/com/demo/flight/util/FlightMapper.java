@@ -1,9 +1,9 @@
-package com.flight.util;
+package com.demo.flight.util;
 
-import com.flight.dto.FlightRequest;
-import com.flight.dto.FlightResponse;
-import com.flight.entity.Flight;
-import com.flight.enums.FlightStatus;
+import com.demo.flight.dto.FlightRequest;
+import com.demo.flight.dto.FlightResponse;
+import com.demo.flight.entity.Flight;
+import com.demo.flight.enums.FlightStatus;
 
 public class FlightMapper {
 

@@ -1,6 +1,6 @@
-package com.flight.dto;
+package com.demo.flight.dto;
 
-import com.flight.enums.FlightStatus;
+import com.demo.flight.enums.FlightStatus;
 
 import lombok.Data;
 

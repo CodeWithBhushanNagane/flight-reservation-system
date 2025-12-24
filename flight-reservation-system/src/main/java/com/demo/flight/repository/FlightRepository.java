@@ -1,4 +1,4 @@
-package com.flight.repository;
+package com.demo.flight.repository;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -8,8 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.flight.entity.Flight;
-import com.flight.enums.FlightStatus;
+import com.demo.flight.entity.Flight;
+import com.demo.flight.enums.FlightStatus;
 
 public interface FlightRepository extends JpaRepository<Flight, Long> {
 

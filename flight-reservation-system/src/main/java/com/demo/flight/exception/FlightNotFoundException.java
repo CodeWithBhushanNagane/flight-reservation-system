@@ -1,4 +1,4 @@
-package com.flight.exception;
+package com.demo.flight.exception;
 
 public class FlightNotFoundException extends RuntimeException {
 

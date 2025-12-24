@@ -1,6 +1,6 @@
-package com.flight.entity;
+package com.demo.flight.entity;
 
-import com.flight.enums.SeatStatus;
+import com.demo.flight.enums.SeatStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

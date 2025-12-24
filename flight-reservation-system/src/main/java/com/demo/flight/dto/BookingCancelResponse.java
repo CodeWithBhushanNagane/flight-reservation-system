@@ -1,8 +1,8 @@
-package com.flight.dto;
+package com.demo.flight.dto;
 
 import java.util.List;
 
-import com.flight.enums.BookingStatus;
+import com.demo.flight.enums.BookingStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

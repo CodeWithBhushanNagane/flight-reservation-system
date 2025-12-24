@@ -1,4 +1,4 @@
-package com.flight.entity;
+package com.demo.flight.entity;
 
 import java.io.Serializable;
 import java.util.Objects;

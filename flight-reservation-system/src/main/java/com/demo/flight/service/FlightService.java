@@ -1,26 +1,29 @@
-package com.flight.service;
+package com.demo.flight.service;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.demo.flight.exception.DuplicateFlightException;
 import org.springframework.stereotype.Service;
 
-import com.flight.dto.FlightRequest;
-import com.flight.dto.FlightResponse;
-import com.flight.dto.FlightSeatAvailabilityResponse;
-import com.flight.entity.Booking;
-import com.flight.entity.Flight;
-import com.flight.entity.Seat;
-import com.flight.enums.BookingStatus;
-import com.flight.enums.FlightStatus;
-import com.flight.exception.FlightNotFoundException;
-import com.flight.exception.InvalidFlightStatusException;
-import com.flight.repository.BookingRepository;
-import com.flight.repository.BookingSeatRepository;
-import com.flight.repository.FlightRepository;
-import com.flight.repository.SeatRepository;
-import com.flight.util.FlightMapper;
+import com.demo.flight.dto.FlightRequest;
+import com.demo.flight.dto.FlightResponse;
+import com.demo.flight.dto.FlightSeatAvailabilityResponse;
+import com.demo.flight.entity.Booking;
+import com.demo.flight.entity.Flight;
+import com.demo.flight.entity.Seat;
+import com.demo.flight.enums.BookingStatus;
+import com.demo.flight.enums.FlightStatus;
+import com.demo.flight.exception.FlightNotFoundException;
+import com.demo.flight.exception.InvalidFlightStatusException;
+import com.demo.flight.repository.BookingRepository;
+import com.demo.flight.repository.BookingSeatRepository;
+import com.demo.flight.repository.FlightRepository;
+import com.demo.flight.repository.SeatRepository;
+import com.demo.flight.util.FlightMapper;
 
 @Service
 public class FlightService {
@@ -38,9 +41,6 @@ public class FlightService {
 		this.bookingSeatRepository = bookingSeatRepository;
 	}
 
-	// =========================
-	// SHOW SEAT AVAILABILITY
-	// =========================
 	public FlightSeatAvailabilityResponse getSeatAvailability(String flightCode) {
 
 		Flight flight = flightRepository.findByFlightCode(flightCode)
@@ -64,6 +64,10 @@ public class FlightService {
 	}
 	
 	public FlightResponse addFlight(FlightRequest flightRequest) {
+        Optional<Flight> flight = flightRepository.findByFlightCode(flightRequest.getFlightCode());
+        if(flight.isPresent()){
+            throw new DuplicateFlightException("Duplicate Flight: " + flightRequest.getFlightCode());
+        }
 		return FlightMapper.toDto(flightRepository.save(FlightMapper.toEntity(flightRequest)));
 	}
 	
@@ -104,7 +108,11 @@ public class FlightService {
 	}
 	
 	public List<Flight> serachFlights(String source, String destination, LocalDate journeyDate) {
-		return flightRepository.searchActiveFlights(source, destination, journeyDate);
+	    List<Flight> flights = flightRepository.searchActiveFlights(source, destination, journeyDate);
+        if(flights.isEmpty()){
+            throw new FlightNotFoundException("Flight Not Found.");
+        }
+        return flights;
 	}
 
 }

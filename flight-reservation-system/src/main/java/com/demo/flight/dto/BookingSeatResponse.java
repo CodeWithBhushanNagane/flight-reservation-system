@@ -1,9 +1,9 @@
-package com.flight.dto;
+package com.demo.flight.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.flight.entity.Flight;
+import com.demo.flight.entity.Flight;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

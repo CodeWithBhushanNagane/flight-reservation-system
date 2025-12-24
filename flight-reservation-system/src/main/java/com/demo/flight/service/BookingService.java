@@ -1,4 +1,4 @@
-package com.flight.service;
+package com.demo.flight.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -7,26 +7,26 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.flight.dto.BookingCancelResponse;
-import com.flight.dto.BookingRequest;
-import com.flight.dto.BookingResponse;
-import com.flight.dto.BookingSeatResponse;
-import com.flight.entity.Booking;
-import com.flight.entity.BookingSeat;
-import com.flight.entity.Flight;
-import com.flight.entity.Seat;
-import com.flight.enums.BookingStatus;
-import com.flight.enums.FlightStatus;
-import com.flight.enums.SeatStatus;
-import com.flight.exception.BookingNotFoundException;
-import com.flight.exception.FlightNotFoundException;
-import com.flight.exception.InvalidBookingCancelException;
-import com.flight.exception.InvalidBookingException;
-import com.flight.exception.SeatNotAvailableException;
-import com.flight.repository.BookingRepository;
-import com.flight.repository.BookingSeatRepository;
-import com.flight.repository.FlightRepository;
-import com.flight.repository.SeatRepository;
+import com.demo.flight.dto.BookingCancelResponse;
+import com.demo.flight.dto.BookingRequest;
+import com.demo.flight.dto.BookingResponse;
+import com.demo.flight.dto.BookingSeatResponse;
+import com.demo.flight.entity.Booking;
+import com.demo.flight.entity.BookingSeat;
+import com.demo.flight.entity.Flight;
+import com.demo.flight.entity.Seat;
+import com.demo.flight.enums.BookingStatus;
+import com.demo.flight.enums.FlightStatus;
+import com.demo.flight.enums.SeatStatus;
+import com.demo.flight.exception.BookingNotFoundException;
+import com.demo.flight.exception.FlightNotFoundException;
+import com.demo.flight.exception.InvalidBookingCancelException;
+import com.demo.flight.exception.InvalidBookingException;
+import com.demo.flight.exception.SeatNotAvailableException;
+import com.demo.flight.repository.BookingRepository;
+import com.demo.flight.repository.BookingSeatRepository;
+import com.demo.flight.repository.FlightRepository;
+import com.demo.flight.repository.SeatRepository;
 
 @Service
 public class BookingService {
@@ -45,9 +45,6 @@ public class BookingService {
 		this.bookingSeatRepository = bookingSeatRepository;
 	}
 
-	// ===============================
-	// BOOK SEATS
-	// ===============================
 	@Transactional
 	public BookingResponse bookSeats(String userId, BookingRequest request) {
 
@@ -56,7 +53,6 @@ public class BookingService {
 
 		validateFlightForBooking(flight);
 
-		// Lock seats
 		List<Seat> seats = seatRepository.lockSeatsForBooking(flight.getFlightId(), request.getRequestedSeats());
 
 		if (seats.size() != request.getRequestedSeats().size()) {
@@ -69,10 +65,8 @@ public class BookingService {
 			}
 		}
 
-		// Mark seats as BOOKED
 		seats.forEach(seat -> seat.setStatus(SeatStatus.BOOKED));
 
-		// Create booking
 		Booking booking = new Booking();
 		booking.setBookingCode("AIBK-" + System.currentTimeMillis());
 		booking.setUserId(userId);
@@ -82,7 +76,6 @@ public class BookingService {
 
 		bookingRepository.save(booking);
 
-		// Map booking to seats
 		for (Seat seat : seats) {
 			BookingSeat bs = new BookingSeat();
 			bs.setBookingId(booking.getBookingId());
@@ -93,16 +86,10 @@ public class BookingService {
 		return buildBookingResponse(booking, seats);
 	}
 
-	// ===============================
-	// SHOW USER BOOKINGS
-	// ===============================
 	public List<Booking> getUserBookings(String userId) {
-		return bookingRepository.findByUserId(userId);
+        return bookingRepository.findByUserId(userId);
 	}
-	
-	// ===============================
-	// SHOW USER BOOKINGS WITH SEATS
-	// ===============================
+
 	public List<BookingSeatResponse> getUserBookingsWithSeats(String userId) {
 
 	    List<Booking> bookings =
@@ -125,9 +112,6 @@ public class BookingService {
 	    }).toList();
 	}
 
-	// ===============================
-	// RESPONSE BUILDER
-	// ===============================
 	private BookingResponse buildBookingResponse(Booking booking, List<Seat> seats) {
 
 		BookingResponse response = new BookingResponse();
@@ -140,10 +124,7 @@ public class BookingService {
 
 		return response;
 	}
-	
-	// ===============================
-	// VALIDATE FLIGHT STATUS
-	// ===============================
+
 	private void validateFlightForBooking(Flight flight) {
 
 	    switch (flight.getStatus()) {
@@ -170,10 +151,7 @@ public class BookingService {
 	            );
 	    }
 	}
-	
-	//========================
-	// CANCEL BOOKING
-	//========================
+
 	public BookingCancelResponse cancelBooking(String bookingCode) {
 		Booking booking = bookingRepository.findByBookingCode(bookingCode)
 				.orElseThrow(() -> new BookingNotFoundException("Booking Not Found"));

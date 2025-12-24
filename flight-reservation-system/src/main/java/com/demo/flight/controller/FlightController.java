@@ -1,7 +1,8 @@
-package com.flight.controller;
+package com.demo.flight.controller;
 
 import java.util.List;
 
+import com.demo.flight.service.SeatService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,22 +13,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.flight.dto.FlightRequest;
-import com.flight.dto.FlightResponse;
-import com.flight.dto.FlightSearchRequest;
-import com.flight.dto.FlightSeatAvailabilityResponse;
-import com.flight.dto.FlightStatusRequest;
-import com.flight.entity.Flight;
-import com.flight.service.FlightService;
+import com.demo.flight.dto.FlightRequest;
+import com.demo.flight.dto.FlightResponse;
+import com.demo.flight.dto.FlightSearchRequest;
+import com.demo.flight.dto.FlightSeatAvailabilityResponse;
+import com.demo.flight.dto.FlightStatusRequest;
+import com.demo.flight.entity.Flight;
+import com.demo.flight.service.FlightService;
 
 @RestController
 @RequestMapping("/api/v1/flight")
 public class FlightController {
 	private final FlightService flightService;
+    private final SeatService seatService;
 
-	public FlightController(FlightService flightService) {
+	public FlightController(FlightService flightService, SeatService seatService) {
 		this.flightService = flightService;
-	}
+        this.seatService = seatService;
+    }
 
 	@GetMapping("/seatAvailability/{flightCode}")
 	public FlightSeatAvailabilityResponse getSeatAvailability(@PathVariable String flightCode) {
@@ -55,5 +58,11 @@ public class FlightController {
 	public List<Flight> searchFlights(@RequestBody FlightSearchRequest flightSearchRequest) {
 		return flightService.serachFlights(flightSearchRequest.source(), flightSearchRequest.destination(), flightSearchRequest.journeyDate());
 	}
+
+    @PostMapping("/add/{flightCode}")
+    public ResponseEntity<String> generateSeats(@PathVariable String flightCode) {
+        int seatsCreated = seatService.createSeatsForFlight(flightCode);
+        return ResponseEntity.ok(seatsCreated + " seats Added for flight " + flightCode);
+    }
 
 }
